@@ -1,51 +1,31 @@
-name: Deploy with Ansible and Fetch HTML
+name: devops test
 
 on:
   push:
-    branches:
-      - main  
+    branches: [ main ]
+    
 jobs:
   deploy:
-    runs-on: ubuntu-latest  
-
-    steps:
-      - name: Checkout repository 
-        uses: actions/checkout@v3
-
-      - name: Install Ansible  
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
-
-      - name: Run Ansible playbook  
-        uses: dawidd6/action-ansible-playbook@v2
-        with:
-          playbook: playbook.yml  
-          key: ${{secrets.SSH_KEY}} 
-          inventory: |
-            [all]
-            15.164.213.4 ansible_ssh_user=ubuntu  
-            
-  install-nginx:
-    needs: fetch-html
+    name: ansible test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Nginx 
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nginx
+    - name: Checkout 
+      uses: actions/checkout@v3
 
-      - name: Copy HTML code to Nginx root directory  
-        run: sudo cp -r /tmp/html-code /var/www/html/
-        
-  fetch-html:
-    needs: deploy
-    runs-on: ubuntu-latest
-
-    steps:
+    - name: Run Ansible playbook
+      uses: dawidd6/action-ansible-playbook@v2.8.0
+      with:
+        # Required, playbook filepath
+        playbook: deploy.yml
+        # Optional, directory where playbooks live
+        directory: ./
+        key: ${{secrets.SSH_KEY}}
+        inventory: |
+          [all]
+          15.164.213.4 ansible_ssh_user=ubuntu
     - name: get code from github
-      uses: appleboy/ssh-action@v0.1.9
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
@@ -54,6 +34,4 @@ jobs:
         script: |
           sudo rm -rf ./Ansible
           sudo git clone https://github.com/ParkHyeonBeom/Ansible
-          sudo mv -f ./Ansible/*.html /var/www/html 
-
-  
+          sudo mv -f ./Ansible/*.html /var/www/html
