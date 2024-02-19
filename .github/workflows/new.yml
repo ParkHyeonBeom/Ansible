@@ -6,7 +6,7 @@ on:
       - main 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Ubuntu 환경에서 실행
+    runs-on: ubuntu-latest  
 
     steps:
       - name: Checkout repository  
