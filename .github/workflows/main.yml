@@ -18,6 +18,6 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.REMOTE_PORT }}
         script: |
-          sudo rm -rf ./devops
-          sudo git clone https://github.com/ParkHyeonBeom/Ansible.git
-          sudo mv -f ./devops/*.html /var/www/html
+          sudo rm -rf ./Ansible
+          sudo git clone https://github.com/ParkHyeonBeom/Ansible
+          sudo mv -f ./Ansible/*.html /var/www/html
