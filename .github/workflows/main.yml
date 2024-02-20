@@ -1,4 +1,4 @@
-name: devops test
+name: frontend devops
 
 on:
   push:
@@ -6,24 +6,10 @@ on:
     
 jobs:
   deploy:
-    name: ansible test
+    name: frontend test
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout 
-      uses: actions/checkout@v3
-
-    - name: Run Ansible playbook
-      uses: dawidd6/action-ansible-playbook@v2.8.0
-      with:
-        # Required, playbook filepath
-        playbook: deploy.yml
-        # Optional, directory where playbooks live
-        directory: ./
-        key: ${{secrets.SSH_KEY}}
-        inventory: |
-          [all]
-          15.164.213.4 ansible_ssh_user=ubuntu
     - name: get code from github
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -32,6 +18,14 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.REMOTE_PORT }}
         script: |
-          sudo rm -rf ./Ansible
+          sudo rm -rf Ansible
           sudo git clone https://github.com/ParkHyeonBeom/Ansible
-          sudo mv -f ./Ansible/*.html /var/www/html
+          cd Ansible
+          sudo npm i
+          export VUE_APP_BACKEND_URL=15.164.166.94
+          sudo npm run build
+          sudo docker build --tag beomiya/test:latest .
+          sudo docker login -u gusqja0213@naver.com -p dydehf0213@
+          sudo docker push beomiya/test:latest
+          sudo docker-compose -f /home/ubuntu/docker-compose2.yml pull
+          sudo docker-compose -f /home/ubuntu/docker-compose2.yml up -d --force-recreate --build
